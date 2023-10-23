@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Graph Planner</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f3f3f3;
+            text-align: center;
+        }
+
+        /* #container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+        } */
+
+        h1 {
+            color: #333;
+        }
+
+        label {
+            display: inline;
+            margin: 10px 0;
+        }
+
+        input[type="number"] {
+            width: 8%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #graph-container {
+            position: relative;
+            width: 100%;
+            height: 1000px;
+            overflow: hidden;
+        }
+
+        .rectangle {
+            position: absolute;
+            background-color: #007bff;
+            z-index: 1;
+            cursor: pointer;
+        }
+
+        .label {
+            position: absolute;
+            text-align: center;
+            width: 100%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 12px; /* Adjust the font size as needed */
+        }
+
+        .graph-paper {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: linear-gradient(rgba(0, 0, 0, 0.2) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 0, 0, 0.2) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h1>Graph Planner</h1>
+
+        <label for="widthInput">Width:</label>
+        <input type="number" id="widthInput" placeholder="Enter width">
+
+        <label for="depthInput">Height:</label>
+        <input type="number" id="depthInput" placeholder="Enter height">
+
+        <button id="renderButton">Draw</button>
+    </br></br>
+
+        <div id="graph-container">
+            <div class="graph-paper"></div>
+        </div>
+    </div>
+
+    <script>
+        const container = document.getElementById('graph-container');
+        const renderButton = document.getElementById('renderButton');
+        const widthInput = document.getElementById('widthInput');
+        const depthInput = document.getElementById('depthInput');
+        const rectangles = [];
+        let rectangleCount = 0;
+
+        renderButton.addEventListener('click', function () {
+            const width = widthInput.value;
+            const depth = depthInput.value;
+
+            if (width && depth) {
+                rectangleCount++;
+                const rectangle = document.createElement('div');
+                rectangle.className = 'rectangle';
+                rectangle.style.width = width + 'px';
+                rectangle.style.height = depth + 'px';
+
+                const label = document.createElement('div');
+                label.className = 'label';
+                label.textContent = `Bench ${rectangleCount} ${width}x${depth}`;
+
+                rectangle.appendChild(label);
+
+                rectangles.push(rectangle);
+                container.appendChild(rectangle);
+
+                // Clear input values
+                widthInput.value = '';
+                depthInput.value = '';
+            }
+        });
+
+        let isDragging = false;
+        let offsetX = 0;
+        let offsetY = 0;
+        let activeRectangle = null;
+
+        container.addEventListener('mousedown', (e) => {
+            activeRectangle = e.target;
+            if (activeRectangle && activeRectangle.classList.contains('rectangle')) {
+                isDragging = true;
+                offsetX = e.clientX - activeRectangle.getBoundingClientRect().left;
+                offsetY = e.clientY - activeRectangle.getBoundingClientRect().top;
+                activeRectangle.style.zIndex = rectangles.length + 1;
+            }
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                const x = e.clientX - offsetX - container.getBoundingClientRect().left;
+                const y = e.clientY - offsetY - container.getBoundingClientRect().top;
+
+                activeRectangle.style.left = x + 'px';
+                activeRectangle.style.top = y + 'px';
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+    </script>
+</body>
+</html>
